@@ -48,13 +48,13 @@ npx wrangler login
 npx wrangler kv namespace create TOKEN_CACHE
 ```
 
-4. Run setup and paste the returned namespace ID when prompted:
+4. Run setup to find the `TOKEN_CACHE` namespace in your Cloudflare account and configure the binding automatically:
 
 ```sh
 npm run setup
 ```
 
-> NOTE: Setup generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local. Wrangler uses this file automatically. Running setup again preserves your settings.
+> NOTE: Setup uses your Wrangler login to look up the namespace ID and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local. Wrangler uses this file automatically. Running setup again preserves your settings.
 
 5. Configure the Product Hub connection, pasting the private key and key ID when prompted:
 
