@@ -168,7 +168,8 @@ npm run secret -- SHOPIFY_WEBHOOK_SECRET
 For each Shopify product that should issue a Gorilla Engine license on purchase:
 
 1. In Shopify admin, go to **Products** and edit the product
-2. Set each variant's **SKU** to match the corresponding Product Hub product's **Identifier**
-3. Click **Save**
+2. Find the **Inventory** section and set the **SKU** to match the corresponding Product Hub product's **Identifier**
+3. If the product has variants, open each variant and set its **SKU** in the **Inventory** section to match its corresponding Product Hub product's **Identifier**
+4. Click **Save** after updating the product or variant
 
 > NOTE: Create the corresponding product in Gorilla Product Hub first. Products are looked up using the SKU filter and the first returned product is used. Items without a matching product are skipped.
