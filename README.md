@@ -15,7 +15,7 @@ Licensing works independently of Auth0.
 
 | Requirement | Details |
 |---|---|
-| Node.js and npm | A current Node.js LTS release compatible with Wrangler 3 |
+| Node.js and npm | Node.js 22.12.0 or later, with npm; a current LTS release is recommended |
 | Cloudflare | An account with Workers enabled |
 | Shopify | A store, webhook signing secret, and app credentials for Admin API order access |
 | Gorilla Product Hub | API base URL, key ID, and Ed25519 private key |
@@ -29,6 +29,8 @@ Licensing works independently of Auth0.
 2. Click the **cog icon** near the top right and select **Manufacture API Keys**
 3. Click **New API Key** and enter a meaningful description (e.g. *Shopify integration*)
 4. Copy the generated **private key**; this is only shown once
+5. Save the API key
+6. Find the newly created key in the list and copy its **ID**
 
 ### 2. Configure the Worker
 
@@ -40,23 +42,23 @@ npm install
 npx wrangler login
 ```
 
-3. Open [wrangler.toml](wrangler.toml) and set the **worker name**
-4. Set the Product Hub API base URL and paste the private key when prompted:
+3. Configure the Product Hub connection, pasting the private key and key ID when prompted:
 
 ```sh
-npx wrangler secret put API_BASE_URL
+printf '%s' 'https://producthub.ujam.com' | npx wrangler secret put API_BASE_URL
 npx wrangler secret put API_PRIVATE_KEY
+npx wrangler secret put API_KEY_ID
 ```
 
-> NOTE: Use the API base URL without an `/api/v1` suffix. The private key must be in PKCS#8 PEM format. Never commit real credentials.
+> NOTE: The private key must be in PKCS#8 PEM format. Never commit real credentials.
 
-5. Create a Cloudflare KV namespace to cache Shopify access tokens between webhook requests:
+4. Create a Cloudflare KV namespace to cache Shopify access tokens between webhook requests:
 
 ```sh
 npx wrangler kv namespace create TOKEN_CACHE
 ```
 
-6. Add the returned namespace ID to [wrangler.toml](wrangler.toml):
+5. Add the returned namespace ID to [wrangler.toml](wrangler.toml):
 
 ```toml
 [[kv_namespaces]]
@@ -64,21 +66,11 @@ binding = "TOKEN_CACHE"
 id = "your-namespace-id"
 ```
 
-7. Leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
+6. Leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
 
 > NOTE: Licenses are created with unlimited activations and no expiry.
 
-### 3. Save the Key and Copy the Key ID
-
-1. Back in Gorilla Product Hub, save the API key
-2. Find the newly created key in the list and copy its **ID**
-3. Paste the ID when prompted by this command:
-
-```sh
-npx wrangler secret put API_KEY_ID
-```
-
-### 4. Configure the Shopify App
+### 3. Configure the Shopify App
 
 1. Create a Shopify app that supports the **client-credentials token flow**
 2. Give the app `read_orders` and `write_orders` access scopes and install it on your store
@@ -93,7 +85,7 @@ npx wrangler secret put SHOPIFY_CLIENT_SECRET
 
 > NOTE: `SHOPIFY_STORE_NAME` is the store subdomain only, e.g. `your-store` from `your-store.myshopify.com`. These credentials allow the worker to record license IDs on orders and retrieve them for refunds.
 
-### 5. Set Up Auth0 User Accounts (Optional)
+### 4. Set Up Auth0 User Accounts (Optional)
 
 For licensing only, leave `CREATE_AUTH0_ACCOUNT = "false"`. Product Hub users are still created; Auth0 is not called.
 
@@ -117,7 +109,7 @@ npx wrangler secret put AUTH0_MGMT_CLIENT_SECRET
 
 > NOTE: Auth0 account creation does not configure end-user authentication for Product Hub license activation. Auth0 failures are logged without undoing licenses already created.
 
-### 6. Enable Licensing on Products
+### 5. Enable Licensing on Products
 
 For each Shopify product that should issue a Gorilla Engine license on purchase:
 
@@ -127,7 +119,7 @@ For each Shopify product that should issue a Gorilla Engine license on purchase:
 
 > NOTE: Create the corresponding product in Gorilla Product Hub first. Products are looked up using the SKU filter and the first returned product is used. Items without a matching product are skipped.
 
-### 7. Deploy the Worker and Configure Shopify Webhooks
+### 6. Deploy the Worker and Configure Shopify Webhooks
 
 1. Build and deploy the worker:
 
