@@ -50,7 +50,7 @@ async function setup() {
 
   const template = await readFile(templatePath, 'utf8');
   const binding = `\n[[kv_namespaces]]\nbinding = "TOKEN_CACHE"\nid = "${namespaceId}"\n`;
-  await writeFile(configPath, template + binding, { flag: 'wx' });
+  await writeFile(configPath, template.trimEnd() + '\n' + binding, { flag: 'wx' });
   console.log('Created wrangler.toml (ignored by Git). Edit this file for local deployment settings.');
 }
 
