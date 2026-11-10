@@ -1,0 +1,20 @@
+{
+  "name": "product-hub-for-shopify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shopify webhook integration for Gorilla Engine Product Hub with optional Auth0 user provisioning",
+  "main": "src/index.ts",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "build": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.1"
+  }
+}

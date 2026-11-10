@@ -1,0 +1,14 @@
+name = "product-hub-for-shopify"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
+[vars]
+DEFAULT_LICENSE_TYPE = "Standard"
+CREATE_AUTH0_ACCOUNT = "false"
+SEND_PASSWORD_SETUP_EMAIL = "false"

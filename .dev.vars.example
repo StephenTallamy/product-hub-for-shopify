@@ -1,0 +1,12 @@
+API_BASE_URL="https://your-product-hub-api.example.com"
+API_KEY_ID="your-product-hub-key-id"
+API_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY\n-----END PRIVATE KEY-----"
+SHOPIFY_WEBHOOK_SECRET="your-shopify-webhook-signing-secret"
+SHOPIFY_STORE_NAME="your-store"
+SHOPIFY_CLIENT_ID="your-shopify-client-id"
+SHOPIFY_CLIENT_SECRET="your-shopify-client-secret"
+
+# Only needed when CREATE_AUTH0_ACCOUNT is true.
+# AUTH0_DOMAIN="your-tenant.auth0.com"
+# AUTH0_MGMT_CLIENT_ID="your-auth0-management-client-id"
+# AUTH0_MGMT_CLIENT_SECRET="your-auth0-management-client-secret"
