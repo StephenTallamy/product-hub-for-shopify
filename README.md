@@ -72,18 +72,29 @@ npm run secret -- API_KEY_ID
 
 ### 3. Configure the Shopify App
 
-1. Create a Shopify app that supports the **client-credentials token flow**
-2. Give the app `read_orders` and `write_orders` access scopes and install it on your store
-3. Copy the app's **client ID** and **client secret**
-4. Set the store name and app credentials, pasting each value when prompted:
+1. Run the guided Shopify setup:
 
 ```sh
-npm run secret -- SHOPIFY_STORE_NAME
-npm run secret -- SHOPIFY_CLIENT_ID
+npm run setup:shopify
+```
+
+2. Follow Shopify's sign-in prompts and select the organization that owns your store. Create a dedicated *Product Hub integration* app, or select an existing app dedicated to this integration
+3. Review and confirm the app release, then enter your store subdomain when prompted (e.g. `your-store` from `your-store.myshopify.com`)
+4. Open the [Shopify Dev Dashboard](https://dev.shopify.com/dashboard/), select **Apps**, and click the app you created or selected during setup
+5. Open the app's **Settings**, upload [gorilla.png](gorilla.png) in the **App icon** section, and save the change.
+6. In the app's **Settings**, copy the **Client secret** and paste it when prompted by this command:
+
+```sh
 npm run secret -- SHOPIFY_CLIENT_SECRET
 ```
 
-> NOTE: `SHOPIFY_STORE_NAME` is the store subdomain only, e.g. `your-store` from `your-store.myshopify.com`. These credentials allow the worker to record license IDs on orders and retrieve them for refunds.
+7. Return to the app's overview, click **Test App**, select your store, and approve the installation permissions
+
+> NOTE: Setup runs a pinned Shopify CLI version on demand; no global installation is needed. It adds `read_orders` and `write_orders`, releases the app configuration, and saves `SHOPIFY_STORE_NAME` and `SHOPIFY_CLIENT_ID` in Cloudflare. Generated Shopify settings are ignored by Git. It does not deploy the worker or change webhook subscriptions.
+
+> NOTE: The app and store must belong to the same Shopify organization for the client-credentials token flow. Complete any protected customer data approval Shopify requests. If you reuse an installed app, approve any new permissions in Shopify after the release.
+
+The worker requests and refreshes access tokens automatically; you do not need to generate an access token yourself.
 
 ### 4. Set Up Auth0 User Accounts (Optional)
 
