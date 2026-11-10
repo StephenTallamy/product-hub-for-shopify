@@ -120,17 +120,7 @@ npm run secret -- AUTH0_MGMT_CLIENT_SECRET
 
 > NOTE: Auth0 account creation does not configure end-user authentication for Product Hub license activation. Auth0 failures are logged without undoing licenses already created.
 
-### 5. Enable Licensing on Products
-
-For each Shopify product that should issue a Gorilla Engine license on purchase:
-
-1. In Shopify admin, go to **Products** and edit the product
-2. Set each variant's **SKU** to match the corresponding Product Hub product's **Identifier**
-3. Click **Save**
-
-> NOTE: Create the corresponding product in Gorilla Product Hub first. Products are looked up using the SKU filter and the first returned product is used. Items without a matching product are skipped.
-
-### 6. Deploy the Worker and Configure Shopify Webhooks
+### 5. Deploy the Worker and Configure Shopify Webhooks
 
 1. Build and deploy the worker:
 
@@ -140,9 +130,28 @@ npm run deploy
 ```
 
 2. Copy the worker URL shown by Wrangler and append `/webhook`
-3. In Shopify, configure an **Order payment** (`orders/paid`) webhook to POST JSON to that URL
-4. Configure a **Refund create** (`refunds/create`) webhook to POST JSON to the same URL
-5. Copy the signing secret Shopify uses for these webhooks and set it on the worker:
+3. In Shopify admin, go to **Settings**, open **Notifications**, and find the **Webhooks** section
+4. Click **+ Webhook** and enter the following settings:
+
+| Field | Value |
+|---|---|
+| Event | **Order payment** (`orders/paid`) |
+| Format | **JSON** |
+| URL | The worker URL with `/webhook` appended, e.g. `https://YOUR-WORKER.workers.dev/webhook` |
+| Webhook API version | Select the latest stable version available |
+
+5. Click **Save** to create the order payment webhook
+6. Click **+ Webhook** again and enter the following settings for refunds:
+
+| Field | Value |
+|---|---|
+| Event | **Refund create** (`refunds/create`) |
+| Format | **JSON** |
+| URL | The same worker URL with `/webhook` appended |
+| Webhook API version | Select the same latest stable version as the order payment webhook |
+
+7. Click **Save** to create the refund webhook
+8. Copy the webhook signing secret shown in Shopify's **Webhooks** section and set it on the worker:
 
 ```sh
 npm run secret -- SHOPIFY_WEBHOOK_SECRET
@@ -153,3 +162,13 @@ npm run secret -- SHOPIFY_WEBHOOK_SECRET
 > NOTE: You can use `orders/create` instead of `orders/paid`, but do not subscribe to both. Duplicate order deliveries can issue duplicate licenses. Do not subscribe unrelated topics.
 
 > NOTE: The worker replaces order notes and note attributes when recording license activity. Keep the **License IDs** attribute intact; refunds use it to disable all licenses recorded for the order, including for partial refunds.
+
+### 6. Enable Licensing on Products
+
+For each Shopify product that should issue a Gorilla Engine license on purchase:
+
+1. In Shopify admin, go to **Products** and edit the product
+2. Set each variant's **SKU** to match the corresponding Product Hub product's **Identifier**
+3. Click **Save**
+
+> NOTE: Create the corresponding product in Gorilla Product Hub first. Products are looked up using the SKU filter and the first returned product is used. Items without a matching product are skipped.
