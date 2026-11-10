@@ -42,31 +42,31 @@ npm install
 npx wrangler login
 ```
 
-3. Configure the Product Hub connection, pasting the private key and key ID when prompted:
-
-```sh
-printf '%s' 'https://producthub.ujam.com' | npx wrangler secret put API_BASE_URL
-npx wrangler secret put API_PRIVATE_KEY
-npx wrangler secret put API_KEY_ID
-```
-
-> NOTE: The private key must be in PKCS#8 PEM format. Never commit real credentials.
-
-4. Create a Cloudflare KV namespace to cache Shopify access tokens between webhook requests:
+3. Create a Cloudflare KV namespace to cache Shopify access tokens between webhook requests:
 
 ```sh
 npx wrangler kv namespace create TOKEN_CACHE
 ```
 
-5. Add the returned namespace ID to [wrangler.toml](wrangler.toml):
+4. Run setup and paste the returned namespace ID when prompted:
 
-```toml
-[[kv_namespaces]]
-binding = "TOKEN_CACHE"
-id = "your-namespace-id"
+```sh
+npm run setup
 ```
 
-6. Leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
+> NOTE: Setup generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local. Wrangler uses this file automatically. Running setup again preserves your settings.
+
+5. Configure the Product Hub connection, pasting the private key and key ID when prompted:
+
+```sh
+printf '%s' 'https://producthub.ujam.com' | npm run secret -- API_BASE_URL
+npm run secret -- API_PRIVATE_KEY
+npm run secret -- API_KEY_ID
+```
+
+> NOTE: The private key must be in PKCS#8 PEM format. Never commit real credentials.
+
+6. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
 
 > NOTE: Licenses are created with unlimited activations and no expiry.
 
@@ -78,9 +78,9 @@ id = "your-namespace-id"
 4. Set the store name and app credentials, pasting each value when prompted:
 
 ```sh
-npx wrangler secret put SHOPIFY_STORE_NAME
-npx wrangler secret put SHOPIFY_CLIENT_ID
-npx wrangler secret put SHOPIFY_CLIENT_SECRET
+npm run secret -- SHOPIFY_STORE_NAME
+npm run secret -- SHOPIFY_CLIENT_ID
+npm run secret -- SHOPIFY_CLIENT_SECRET
 ```
 
 > NOTE: `SHOPIFY_STORE_NAME` is the store subdomain only, e.g. `your-store` from `your-store.myshopify.com`. These credentials allow the worker to record license IDs on orders and retrieve them for refunds.
@@ -94,16 +94,16 @@ To also create Auth0 accounts for customers:
 1. Create an Auth0 **Machine-to-Machine application**
 2. Authorize it for the **Management API** with `read:users` and `create:users`
 3. Enable the `Username-Password-Authentication` database connection for the application
-4. In [wrangler.toml](wrangler.toml), set `CREATE_AUTH0_ACCOUNT = "true"`
+4. In the generated local configuration, set `CREATE_AUTH0_ACCOUNT = "true"`
 5. Set the Auth0 domain and application credentials:
 
 ```sh
-npx wrangler secret put AUTH0_DOMAIN
-npx wrangler secret put AUTH0_MGMT_CLIENT_ID
-npx wrangler secret put AUTH0_MGMT_CLIENT_SECRET
+npm run secret -- AUTH0_DOMAIN
+npm run secret -- AUTH0_MGMT_CLIENT_ID
+npm run secret -- AUTH0_MGMT_CLIENT_SECRET
 ```
 
-6. Leave `SEND_PASSWORD_SETUP_EMAIL = "false"`, or set it to `"true"` and configure Auth0 email delivery to send password setup emails to newly created users
+6. In the generated local configuration, leave `SEND_PASSWORD_SETUP_EMAIL = "false"`, or set it to `"true"` and configure Auth0 email delivery to send password setup emails to newly created users
 
 > NOTE: Use the Auth0 hostname without `https://`. Password setup emails use the same application client ID. Existing users do not receive another setup email. Keep `SEND_PASSWORD_SETUP_EMAIL` explicit; omitting it enables emails when Auth0 provisioning is enabled.
 
@@ -134,7 +134,7 @@ npm run deploy
 5. Copy the signing secret Shopify uses for these webhooks and set it on the worker:
 
 ```sh
-npx wrangler secret put SHOPIFY_WEBHOOK_SECRET
+npm run secret -- SHOPIFY_WEBHOOK_SECRET
 ```
 
 > NOTE: The URL should look like `https://YOUR-WORKER.workers.dev/webhook`. Use the webhook signing secret, which may differ from your Shopify app client secret. Never set it to `dev-bypass`, which disables signature verification.
