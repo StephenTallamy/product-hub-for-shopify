@@ -54,6 +54,8 @@ npx wrangler kv namespace create TOKEN_CACHE
 npm run setup
 ```
 
+When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
+
 > NOTE: Setup uses your Wrangler login to look up the namespace ID and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local. Wrangler uses this file automatically. Running setup again preserves your settings.
 
 5. Configure the Product Hub connection, pasting the private key and key ID when prompted:
@@ -129,7 +131,7 @@ npm run build
 npm run deploy
 ```
 
-2. Copy the worker URL shown by Wrangler and append `/webhook`
+2. Copy the worker URL shown by Wrangler and append `/webhook`. If using a custom hostname, use `https://YOUR-HOSTNAME/webhook` instead
 3. In Shopify admin, go to **Settings**, open **Notifications**, and find the **Webhooks** section
 4. Click **+ Webhook** and enter the following settings:
 

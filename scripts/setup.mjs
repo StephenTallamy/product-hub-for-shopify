@@ -2,6 +2,7 @@ import { access, readFile, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
+import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
@@ -48,9 +49,23 @@ async function setup() {
     throw new Error('The namespace ID must contain 32 hexadecimal characters.');
   }
 
+  let hostname = '';
+  if (process.stdin.isTTY) {
+    const prompt = createInterface({ input: process.stdin, output: process.stdout });
+    try {
+      hostname = (await prompt.question('Custom worker hostname (e.g. licenses.example.com; leave blank to skip): ')).trim().toLowerCase();
+    } finally {
+      prompt.close();
+    }
+  }
+  if (hostname && (hostname.length > 253 || !/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(hostname))) {
+    throw new Error('Enter a valid hostname without a scheme, port, or path, such as licenses.example.com.');
+  }
+
   const template = await readFile(templatePath, 'utf8');
   const binding = `\n[[kv_namespaces]]\nbinding = "TOKEN_CACHE"\nid = "${namespaceId}"\n`;
-  await writeFile(configPath, template.trimEnd() + '\n' + binding, { flag: 'wx' });
+  const route = hostname ? `\n[[routes]]\npattern = "${hostname}"\ncustom_domain = true\n` : '';
+  await writeFile(configPath, template.trimEnd() + '\n' + binding + route, { flag: 'wx' });
   console.log('Created wrangler.toml (ignored by Git). Edit this file for local deployment settings.');
 }
 
