@@ -17,8 +17,7 @@ Licensing works independently of Auth0.
 |---|---|
 | Node.js and npm | Node.js 22.12.0 or later, with npm; a current LTS release is recommended |
 | Cloudflare | An account with Workers enabled |
-| Shopify | A store, webhook signing secret, and app credentials for Admin API order access |
-| Gorilla Product Hub | API base URL, key ID, and Ed25519 private key |
+| Shopify | A standard Shopify store with products available |
 | Auth0 | Optional; required only for Auth0 user provisioning |
 
 ## Configuration
@@ -28,7 +27,7 @@ Licensing works independently of Auth0.
 1. Log in to [Gorilla Product Hub](https://producthub.ujam.com)
 2. Click the **cog icon** near the top right and select **Manufacture API Keys**
 3. Click **New API Key** and enter a meaningful description (e.g. *Shopify integration*)
-4. Copy the generated **private key**; this is only shown once
+4. Save a copy of the generated **private key**; this is only shown once
 5. Save the API key
 6. Find the newly created key in the list and copy its **ID**
 
@@ -56,7 +55,7 @@ npm run setup
 
 When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
 
-> NOTE: Setup uses your Wrangler login to look up the namespace ID and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local. Wrangler uses this file automatically. Running setup again preserves your settings.
+> NOTE: Setup uses your Wrangler login to look up the namespace ID and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local.
 
 5. Configure the Product Hub connection, pasting the private key and key ID when prompted:
 
