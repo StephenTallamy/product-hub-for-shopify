@@ -114,15 +114,19 @@ async function findNamespaceId(executable, accountId, requestedId) {
 }
 
 async function setup() {
+  const executable = await getWranglerExecutable();
+  let configExists = false;
   try {
     await access(configPath);
-    console.log('wrangler.toml already exists; your local settings have been preserved. Check that account_id is set to your intended Cloudflare account.');
-    return;
+    configExists = true;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
+  if (configExists) {
+    console.log('wrangler.toml already exists; your local settings have been preserved.');
+    return;
+  }
 
-  const executable = await getWranglerExecutable();
   const accountId = await selectAccount(executable);
   const namespaceId = (await findNamespaceId(executable, accountId, process.argv[2]?.trim())).trim();
   if (!/^[a-f0-9]{32}$/i.test(namespaceId)) {

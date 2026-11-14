@@ -4,7 +4,7 @@
 
 // Environment variables interface
 export interface Env {
-  API_BASE_URL: string;
+  API_BASE_URL?: string;
   API_KEY_ID: string;
   API_PRIVATE_KEY: string;
   SHOPIFY_WEBHOOK_SECRET: string;

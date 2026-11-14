@@ -12,3 +12,4 @@ invocation_logs = true
 DEFAULT_LICENSE_TYPE = "Standard"
 CREATE_AUTH0_ACCOUNT = "false"
 SEND_PASSWORD_SETUP_EMAIL = "false"
+API_BASE_URL = "https://producthub.ujam.com"

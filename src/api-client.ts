@@ -445,5 +445,5 @@ export class LicenseApiClient {
  * @returns LicenseApiClient instance
  */
 export function createApiClient(env: Env): LicenseApiClient {
-  return new LicenseApiClient(env.API_BASE_URL, env.API_KEY_ID, env.API_PRIVATE_KEY);
+  return new LicenseApiClient(env.API_BASE_URL || 'https://producthub.ujam.com', env.API_KEY_ID, env.API_PRIVATE_KEY);
 }

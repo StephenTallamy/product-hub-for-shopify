@@ -22,16 +22,7 @@ Licensing works independently of Auth0.
 
 ## Configuration
 
-### 1. Create an API Key in Gorilla Product Hub
-
-1. Log in to [Gorilla Product Hub](https://producthub.ujam.com)
-2. Click the **cog icon** near the top right and select **Manufacture API Keys**
-3. Click **New API Key** and enter a meaningful description (e.g. *Shopify integration*)
-4. Save a copy of the generated **private key**; this is only shown once
-5. Save the API key
-6. Find the newly created key in the list and copy its **ID**
-
-### 2. Configure the Worker
+### 1. Configure the Worker
 
 1. Open a terminal in the repository directory
 2. Install dependencies and sign in to Cloudflare:
@@ -41,7 +32,7 @@ npm install
 npx wrangler login
 ```
 
-3. Run setup to select your Cloudflare account and configure the `TOKEN_CACHE` namespace for caching Shopify access tokens:
+3. Run setup to select your Cloudflare account and configure `TOKEN_CACHE`:
 
 ```sh
 npm run setup
@@ -51,21 +42,33 @@ If you have more than one Cloudflare account you will be prompted to select the 
 
 When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
 
-> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates wrangler.toml from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration.
+> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates wrangler.toml from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration, which must have an `account_id` set.
 
-4. Configure the Product Hub connection, pasting the private key and key ID when prompted:
+4. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
+
+> NOTE: Licenses are created with unlimited activations and no expiry.
+
+### 2. Create an API Key in Gorilla Product Hub
+
+1. Log in to [Gorilla Product Hub](https://producthub.ujam.com)
+2. Click the **cog icon** near the top right and select **Manufacture API Keys**
+3. Click **New API Key** and enter a meaningful description (e.g. *Shopify integration*)
+4. Save a copy of the generated **private key**; this is only shown once
+5. Run the following command and paste the private key when prompted:
 
 ```sh
-printf '%s' 'https://producthub.ujam.com' | npm run secret -- API_BASE_URL
 npm run secret -- API_PRIVATE_KEY
+```
+
+6. Back in Gorilla Product Hub, save the API key
+7. Find the newly created key in the list and copy its **ID**
+8. Run the following command and paste the key ID when prompted:
+
+```sh
 npm run secret -- API_KEY_ID
 ```
 
-> NOTE: The private key must be in PKCS#8 PEM format. Never commit real credentials.
-
-5. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
-
-> NOTE: Licenses are created with unlimited activations and no expiry.
+> NOTE: The private key must be in PKCS#8 PEM format.
 
 ### 3. Configure the Shopify App
 
