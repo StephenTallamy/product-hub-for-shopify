@@ -174,4 +174,4 @@ For each Shopify product that should issue a Gorilla Engine license on purchase:
 3. If the product has variants, open each variant and set its **SKU** in the **Inventory** section to match its corresponding Product Hub product's **Identifier**
 4. Click **Save** after updating the product or variant
 
-> NOTE: Create the corresponding product in Gorilla Product Hub first. Products are looked up using the SKU filter and the first returned product is used. Items without a matching product are skipped.
+> NOTE: Create the corresponding product in Gorilla Product Hub first. The SKU lookup prefers an exact identifier match, ignoring case; if none is found, it uses the first returned product. Items with no returned product are skipped.

@@ -337,9 +337,11 @@ export class LicenseApiClient {
    * @returns Product ID or null if not found
    */
   async getProductBySku(sku: string): Promise<string | null> {
+    if (!sku) return null;
+
     try {
       // Filter by identifier - API searches series, name, or identifier fields
-      const urlPath = `/api/v1/products?filter=${encodeURIComponent(sku)}`;
+      const urlPath = `/api/v1/products?filter=${encodeURIComponent(sku)}&per_page=25`;
       const url = `${this.baseUrl}${urlPath}`;
       const authHeader = await this.createAuthHeader('GET', urlPath, null);
       
@@ -361,21 +363,18 @@ export class LicenseApiClient {
           return null;
         }
         
-        const parsed = JSON.parse(text);
-        
-        // Check for {data: [...]} wrapper structure (like users endpoint)
-        if (parsed && typeof parsed === 'object' && 'data' in parsed && Array.isArray(parsed.data)) {
-          if (parsed.data.length > 0 && parsed.data[0].id) {
-            const productId = parsed.data[0].id;
+        const parsed = JSON.parse(text) as { data?: Array<{ id?: string | null; identifier?: string | null }> } | null;
+        if (parsed && Array.isArray(parsed.data)) {
+          const normalize = (value: string) => value.replace(/[A-Z]/g, character => character.toLowerCase());
+          const match = parsed.data.find(product =>
+            product?.id != null && product.identifier != null &&
+            normalize(String(product.identifier)) === normalize(sku)
+          );
+          const productId = match?.id ?? parsed.data[0]?.id;
+          if (productId != null) {
             console.log(`Found product ID ${productId} for SKU ${sku}`);
-            return productId;
+            return String(productId);
           }
-        }
-        // Check for direct array structure
-        else if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].id) {
-          const productId = parsed[0].id;
-          console.log(`Found product ID ${productId} for SKU ${sku}`);
-          return productId;
         }
         
         console.log(`No product found for SKU: ${sku}`);
