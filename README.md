@@ -51,7 +51,7 @@ If you have more than one Cloudflare account you will be prompted to select the 
 
 When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
 
-> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration; if yours predates account selection, add `account_id = "your-cloudflare-account-id"` at the top level. Run `npx wrangler whoami --json` to find accessible account IDs.
+> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates wrangler.toml from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration.
 
 4. Configure the Product Hub connection, pasting the private key and key ID when prompted:
 
