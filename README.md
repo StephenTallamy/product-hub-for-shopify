@@ -41,23 +41,19 @@ npm install
 npx wrangler login
 ```
 
-3. Create a Cloudflare KV namespace to cache Shopify access tokens between webhook requests:
-
-```sh
-npx wrangler kv namespace create TOKEN_CACHE
-```
-
-4. Run setup to find the `TOKEN_CACHE` namespace in your Cloudflare account and configure the binding automatically:
+3. Run setup to select your Cloudflare account and configure the `TOKEN_CACHE` namespace for caching Shopify access tokens:
 
 ```sh
 npm run setup
 ```
 
+If you have more than one Cloudflare account you will be prompted to select the account where the worker will be deployed. Setup uses an existing `TOKEN_CACHE` namespace in that account or creates one if needed.
+
 When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
 
-> NOTE: Setup uses your Wrangler login to look up the namespace ID and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your namespace ID and deployment settings stay local.
+> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates [wrangler.toml](wrangler.toml) from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration; if yours predates account selection, add `account_id = "your-cloudflare-account-id"` at the top level. Run `npx wrangler whoami --json` to find accessible account IDs.
 
-5. Configure the Product Hub connection, pasting the private key and key ID when prompted:
+4. Configure the Product Hub connection, pasting the private key and key ID when prompted:
 
 ```sh
 printf '%s' 'https://producthub.ujam.com' | npm run secret -- API_BASE_URL
@@ -67,7 +63,7 @@ npm run secret -- API_KEY_ID
 
 > NOTE: The private key must be in PKCS#8 PEM format. Never commit real credentials.
 
-6. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
+5. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
 
 > NOTE: Licenses are created with unlimited activations and no expiry.
 
