@@ -1,6 +1,7 @@
 import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -11,6 +12,44 @@ const templatePath = new URL('../wrangler.toml.template', import.meta.url);
 const configPath = new URL('../wrangler.toml', import.meta.url);
 const require = createRequire(import.meta.url);
 const execute = promisify(execFile);
+
+function putSecret(executable, name, value) {
+  return new Promise((resolvePut, reject) => {
+    const child = spawn(process.execPath, [executable, 'secret', 'put', name, '--config', fileURLToPath(configPath)], {
+      cwd: fileURLToPath(new URL('../', import.meta.url)),
+      stdio: ['pipe', 'inherit', 'inherit'],
+    });
+    child.on('error', reject);
+    child.on('close', (code, signal) => {
+      if (code === 0) resolvePut();
+      else reject(new Error(`Could not configure ${name} (${signal || code}).`));
+    });
+    child.stdin.on('error', reject);
+    child.stdin.end(value);
+  });
+}
+
+async function ensureTokenEncryptionKey(executable) {
+  let output;
+  try {
+    output = await execute(process.execPath, [
+      executable, 'secret', 'list', '--config', fileURLToPath(configPath),
+    ], { cwd: fileURLToPath(new URL('../', import.meta.url)) });
+  } catch (error) {
+    throw new Error(`Could not check Worker secrets. Confirm your Cloudflare login and account access.\n${error.stderr || error.message}`);
+  }
+
+  const secrets = JSON.parse(output.stdout);
+  if (secrets.some(secret => secret.name === 'TOKEN_ENCRYPTION_KEY')) {
+    console.log('Using existing secret TOKEN_ENCRYPTION_KEY');
+    return;
+  }
+
+  const encryptionKey = randomBytes(32).toString('base64');
+  console.log('Creating secret TOKEN_ENCRYPTION_KEY');
+  await putSecret(executable, 'TOKEN_ENCRYPTION_KEY', encryptionKey);
+  console.log('Created secret TOKEN_ENCRYPTION_KEY. Keep this key stable; setup will not rotate it.');
+}
 
 async function getWranglerExecutable() {
   const packagePath = require.resolve('wrangler/package.json');
@@ -124,6 +163,7 @@ async function setup() {
   }
   if (configExists) {
     console.log('wrangler.toml already exists; your local settings have been preserved.');
+    await ensureTokenEncryptionKey(executable);
     return;
   }
 
@@ -151,6 +191,7 @@ async function setup() {
   const route = hostname ? `\n[[routes]]\npattern = "${hostname}"\ncustom_domain = true\n` : '';
   await writeFile(configPath, `account_id = "${accountId}"\n` + template.trimEnd() + '\n' + binding + route, { flag: 'wx' });
   console.log('Created wrangler.toml (ignored by Git). Edit this file for local deployment settings.');
+  await ensureTokenEncryptionKey(executable);
 }
 
 setup().catch(error => {

@@ -11,6 +11,7 @@ export interface Env {
   SHOPIFY_STORE_NAME?: string; // e.g., "mystore" from mystore.myshopify.com
   SHOPIFY_CLIENT_ID?: string; // Shopify OAuth client ID
   SHOPIFY_CLIENT_SECRET?: string; // Shopify OAuth client secret
+  TOKEN_ENCRYPTION_KEY?: string; // Base64-encoded 256-bit AES-GCM key for cached Shopify tokens
   DEFAULT_LICENSE_TYPE?: string;
   SKU_PRODUCT_MAP?: string; // JSON string mapping Shopify SKUs to License API product IDs
   TOKEN_CACHE?: KVNamespace; // KV namespace for caching Shopify access tokens
