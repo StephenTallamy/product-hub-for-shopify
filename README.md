@@ -102,19 +102,36 @@ The worker can optionally create Auth0 accounts where required. For licensing on
 
 To create Auth0 accounts for customers:
 
-1. Create an Auth0 **Machine-to-Machine application**
-2. Authorize it for the **Management API** with `read:users` and `create:users`
-3. Enable the `Username-Password-Authentication` database connection for the application
-4. In the generated local configuration, set `CREATE_AUTH0_ACCOUNT = "true"`
-5. Set the Auth0 domain and application credentials:
+1. In Auth0 admin select **Applications** from the menu
+2. Click the "Create Application" button
+3. Using the "Create Manually" option enter a name for the application and select "Machine-to-Machine Application"
+4. Select the "Auth0 Management API"
+5. For permissions enable `read:users` and `create:users`
+6. Click the "Authorize" button
+7. On the Credentials tab copy the Client Secret
+8. On the command line set the AUTH0_MGMT_CLIENT_SECRET secret, pasting in the secret copied from Auth0 when prompted
 
 ```sh
-npm run secret -- AUTH0_DOMAIN
-npm run secret -- AUTH0_MGMT_CLIENT_ID
 npm run secret -- AUTH0_MGMT_CLIENT_SECRET
 ```
 
-6. In the generated local configuration, leave `SEND_PASSWORD_SETUP_EMAIL = "false"`, or set it to `"true"` and configure Auth0 email delivery to send password setup emails to newly created users
+9. At the top of the page near the application name copy the Client ID
+10. On the command line set the AUTH0_MGMT_CLIENT_ID secret, pasting in the Client ID copied from Auth0 when prompted
+
+```sh
+npm run secret -- AUTH0_MGMT_CLIENT_ID
+```
+
+11. On the Settings tab for the application, copy the Domain.
+
+12. On the command line set the AUTH0_DOMAIN secret the domain, pasting in the domain copied from Auth0 when prompted
+
+```sh
+npm run secret -- AUTH0_DOMAIN
+```
+
+13. In the generated wrangler.toml, set `CREATE_AUTH0_ACCOUNT = "true"`
+14. In the generated local configuration, leave `SEND_PASSWORD_SETUP_EMAIL = "false"`, or set it to `"true"` and configure Auth0 email delivery to send password setup emails to newly created users
 
 > NOTE: Use the Auth0 hostname without `https://`. Password setup emails use the same application client ID. Existing users do not receive another setup email. Keep `SEND_PASSWORD_SETUP_EMAIL` explicit; omitting it enables emails when Auth0 provisioning is enabled.
 
