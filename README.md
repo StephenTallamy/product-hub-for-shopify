@@ -32,17 +32,17 @@ npm install
 npx wrangler login
 ```
 
-3. Run setup to select your Cloudflare account and configure `TOKEN_CACHE`:
+3. Run setup to select your Cloudflare account and configure `TOKEN_CACHE` and `TOKEN_ENCRYPTION_KEY`:
 
 ```sh
 npm run setup
 ```
 
-If you have more than one Cloudflare account you will be prompted to select the account where the worker will be deployed. Setup uses an existing `TOKEN_CACHE` namespace in that account or creates one if needed.
+If you have more than one Cloudflare account you will be prompted to select the account where the worker will be deployed.
 
 When prompted, enter a custom hostname such as `licenses.example.com`, without `https://` or a path, or leave it blank to use the `workers.dev` URL. The hostname must belong to an active Cloudflare zone you own and must not have an existing CNAME record. Cloudflare creates the DNS record and certificate on deployment. The custom domain routes all paths on that hostname to the worker.
 
-> NOTE: Setup uses your Wrangler login to look up the account and namespace IDs and generates wrangler.toml from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration, which must have an `account_id` set.
+> NOTE: Setup uses your Wrangler login to look up the account to generate wrangler.toml from [wrangler.toml.template](wrangler.toml.template). Git ignores the generated file, so your account ID, namespace ID, and deployment settings stay local. Setup preserves an existing configuration.
 
 4. In the generated local configuration, leave `DEFAULT_LICENSE_TYPE = "Standard"`, or choose `NFR`, `Free`, or `Subscription`
 
@@ -98,9 +98,9 @@ The worker requests and refreshes access tokens automatically; you do not need t
 
 ### 4. Set Up Auth0 User Accounts (Optional)
 
-For licensing only, leave `CREATE_AUTH0_ACCOUNT = "false"`. Product Hub users are still created; Auth0 is not called.
+The worker can optionally create Auth0 accounts where required. For licensing only, leave `CREATE_AUTH0_ACCOUNT = "false"`. Product Hub users are still created; Auth0 is not called.
 
-To also create Auth0 accounts for customers:
+To create Auth0 accounts for customers:
 
 1. Create an Auth0 **Machine-to-Machine application**
 2. Authorize it for the **Management API** with `read:users` and `create:users`
@@ -117,8 +117,6 @@ npm run secret -- AUTH0_MGMT_CLIENT_SECRET
 6. In the generated local configuration, leave `SEND_PASSWORD_SETUP_EMAIL = "false"`, or set it to `"true"` and configure Auth0 email delivery to send password setup emails to newly created users
 
 > NOTE: Use the Auth0 hostname without `https://`. Password setup emails use the same application client ID. Existing users do not receive another setup email. Keep `SEND_PASSWORD_SETUP_EMAIL` explicit; omitting it enables emails when Auth0 provisioning is enabled.
-
-> NOTE: Auth0 account creation does not configure end-user authentication for Product Hub license activation. Auth0 failures are logged without undoing licenses already created.
 
 ### 5. Deploy the Worker and Configure Shopify Webhooks
 
@@ -156,10 +154,6 @@ npm run deploy
 ```sh
 npm run secret -- SHOPIFY_WEBHOOK_SECRET
 ```
-
-> NOTE: The URL should look like `https://YOUR-WORKER.workers.dev/webhook`. Use the webhook signing secret, which may differ from your Shopify app client secret. Never set it to `dev-bypass`, which disables signature verification.
-
-> NOTE: You can use `orders/create` instead of `orders/paid`, but do not subscribe to both. Duplicate order deliveries can issue duplicate licenses. Do not subscribe unrelated topics.
 
 > NOTE: The worker replaces order notes and note attributes when recording license activity. Keep the **License IDs** attribute intact; refunds use it to disable all licenses recorded for the order, including for partial refunds.
 
